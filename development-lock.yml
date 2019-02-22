@@ -1,0 +1,61 @@
+---
+generate-project:
+  :commit: 6e1213ac380ddf82a7e96c0798d2beb55cf11db7
+  :branch: master
+vizor-platform:
+  :commit: 41dc7cb65aa56ff11e4d73e6d320fac3f3139463
+  :branch: master
+generate-template:
+  :commit: ad0dcfb6da64cc0508b71916b30e1050c82ecea7
+  :branch: master
+vizor:
+  :commit: 071cdadbd7bb939e2e26829fe019aecfd30ab25b
+  :branch: master
+logger:
+  :commit: abf4f2b2404b714d5ded2cd37c39d24a66ac2124
+  :branch: master
+units:
+  :commit: 475d640d28a45f238f3499d6d8228d8a8470479b
+  :branch: master
+memory:
+  :commit: 28dd0f2e1d1418ed8f038e6c19fff7c9e45ac135
+  :branch: master
+vulkan-sdk:
+  :commit: fdc0af3b19d1982ada58076fa26ae5ae297d9d0d
+  :branch: master
+vulkan-sdk-darwin:
+  :commit: bbefe4e32854a38cc376b43062a0ca8ff5d14acf
+  :branch: master
+time:
+  :commit: 9dae349ec5fc45fa8f837412b6de357a88c85286
+  :branch: master
+platforms:
+  :commit: 9b3dc9a1b13108f933146cda6c12a994c5c954a0
+  :branch: master
+unit-test:
+  :commit: 13e381cf7f9f3c36c06473f4dced071895f4dfe0
+  :branch: master
+generate-cpp-class:
+  :commit: a7219c511be8af5228c4daf575508c5667108998
+  :branch: master
+variants:
+  :commit: f6a26a8ac3a47a23a213cbd15da2183239d394d1
+  :branch: master
+platform-darwin-osx:
+  :commit: d352ae8d26a35585bc74b83c5fbace3c317f7bb7
+  :branch: master
+platform-darwin-ios:
+  :commit: c81ccc5ee73cb1c6ae31e378148c4cb8c9f8759e
+  :branch: master
+build-clang:
+  :commit: e00c30238dbc03a0a862936182967c8a08e942a6
+  :branch: master
+build-darwin:
+  :commit: fdbedc7316a2231769925dad00c5ec7edfcb4fa9
+  :branch: master
+build-files:
+  :commit: 2e5392ef4e171885b621288c7829e5160f1255bf
+  :branch: master
+streams:
+  :commit: dc8b15f98e04ec3661d530b87d87b072a4d2c997
+  :branch: master
