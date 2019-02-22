@@ -59,3 +59,12 @@ build-files:
 streams:
   :commit: dc8b15f98e04ec3661d530b87d87b072a4d2c997
   :branch: master
+platform-linux:
+  :commit: a1115ce55e978e3c638ebe7bd1a9e5cb5b7cfed4
+  :branch: master
+build-linux:
+  :commit: ae7a96ac18277837dfe4ab37148091d637eb8f4c
+  :branch: master
+vulkan-sdk-linux:
+  :commit: b738dabf8af9c054cd6ed7a414e994073d4d4308
+  :branch: master

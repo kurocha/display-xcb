@@ -39,7 +39,7 @@ namespace Vizor
 				}
 			}
 			
-			vk::UniqueSurfaceKHR XCBWindow::create_surface(const vk::Instance & instance) const
+			vk::UniqueSurfaceKHR Window::create_surface(const vk::Instance & instance) const
 			{
 				vk::XcbSurfaceCreateInfoKHR surfaceCreateInfo;
 				
@@ -49,7 +49,7 @@ namespace Vizor
 				return instance.createXcbSurfaceKHRUnique(surfaceCreateInfo, nullptr);
 			}
 			
-			void XCBWindow::set_title(const std::string title)
+			void Window::set_title(const std::string title)
 			{
 				xcb_change_property(
 					_connection,
@@ -63,7 +63,7 @@ namespace Vizor
 				);
 			}
 			
-			// void XCBWindow::process_events(const EventHandler & handler)
+			// void Window::process_events(const EventHandler & handler)
 			// {
 			// 	xcb_generic_event_t * event;
 			// 
@@ -80,7 +80,7 @@ namespace Vizor
 				return xcb_intern_atom_reply(connection, cookie, NULL);
 			}
 
-			void XCBWindow::setup_window(bool fullscreen)
+			void Window::setup_window(bool fullscreen)
 			{
 				assert(_screen);
 				

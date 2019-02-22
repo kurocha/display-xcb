@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include <vulkan/vulkan.hpp>
+#include <xcb/xcb.h>
+
 namespace Vizor
 {
 	namespace Platform
