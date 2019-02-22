@@ -30,7 +30,7 @@ Run the tests to confirm basic functionality:
 	$ cd vizor-platform-xcb
 You can run the tool by executing the following:
 
-	$ teapot Test/VizorPlatformXCB
+	$ teapot Test/Vizor/Platform/XCB
 
 ## Usage
 
