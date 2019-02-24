@@ -16,7 +16,7 @@ namespace Display
 {
 	namespace XCB
 	{
-		class Window
+		class Window /* : public Display::Window */
 		{
 		public:
 			Window();
