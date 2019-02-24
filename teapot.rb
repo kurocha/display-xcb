@@ -2,40 +2,48 @@
 
 required_version "3.0"
 
-define_project "vizor-platform-xcb" do |project|
+define_project "display-xcb" do |project|
 	project.title = "Vizor Platform XCB"
 end
 
 # Build Targets
 
-define_target 'vizor-platform-xcb-library' do |target|
+define_target 'display-xcb-platform' do |target|
+	target.provides 'Display/XCB/Platform' do
+		append linkflags %W{-lxcb}
+	end
+end
+
+define_target 'display-xcb-library' do |target|
 	target.depends 'Language/C++14'
 	
-	target.depends 'Vulkan/Platform/XCB', public: true
+	target.depends 'Display/XCB/Platform', public: true
 	
-	target.depends 'Library/Logger'
-	target.depends 'Library/Vizor/Platform', public: true
+	target.depends 'Library/Logger', public: true
+	target.depends 'Library/Display', public: true
 	
-	target.provides 'Library/Vizor/Platform/XCB' do
+	target.provides 'Library/Display/XCB' do
 		source_root = target.package.path + 'source'
 		
-		library_path = build static_library: 'Vizor/Platform/XCB', source_files: source_root.glob('Vizor/Platform/XCB/**/*.cpp')
+		library_path = build static_library: 'Display/XCB', source_files: source_root.glob('Display/XCB/**/*.cpp')
 		
 		append linkflags library_path
 		append header_search_paths source_root
 	end
+	
+	target.provides :display_native => 'Library/Display/XCB'
 end
 
-define_target 'vizor-platform-xcb-test' do |target|
-	target.depends 'Library/Vizor/Platform/XCB'
+define_target 'display-xcb-test' do |target|
+	target.depends 'Library/Display/XCB'
 	target.depends 'Library/UnitTest'
 	
 	target.depends 'Language/C++14'
 	
-	target.provides 'Test/Vizor/Platform/XCB' do |arguments|
+	target.provides 'Test/Display/XCB' do |arguments|
 		test_root = target.package.path + 'test'
 		
-		run tests: 'Vizor/Platform/XCB', source_files: test_root.glob('Vizor/Platform/XCB/**/*.cpp'), arguments: arguments
+		run tests: 'Display/XCB', source_files: test_root.glob('Display/XCB/**/*.cpp'), arguments: arguments
 	end
 end
 
@@ -43,7 +51,7 @@ end
 
 define_configuration 'development' do |configuration|
 	configuration[:source] = "https://github.com/kurocha"
-	configuration.import "vizor-platform-xcb"
+	configuration.import "display-xcb"
 	
 	# Provides all the build related infrastructure:
 	configuration.require 'platforms'
@@ -55,9 +63,10 @@ define_configuration 'development' do |configuration|
 	configuration.require 'generate-cpp-class'
 	
 	configuration.require "generate-project"
-	configuration.require "vizor-platform"
 end
 
-define_configuration "vizor-platform-xcb" do |configuration|
+define_configuration "display-xcb" do |configuration|
 	configuration.public!
+	
+	configuration.require "display"
 end

@@ -2,8 +2,8 @@
 generate-project:
   :commit: 6e1213ac380ddf82a7e96c0798d2beb55cf11db7
   :branch: master
-vizor-platform:
-  :commit: 41dc7cb65aa56ff11e4d73e6d320fac3f3139463
+display:
+  :commit: 5cfca4fd578ba69a0220a6922f6139fe2615540c
   :branch: master
 generate-template:
   :commit: ad0dcfb6da64cc0508b71916b30e1050c82ecea7
@@ -67,4 +67,16 @@ build-linux:
   :branch: master
 vulkan-sdk-linux:
   :commit: b738dabf8af9c054cd6ed7a414e994073d4d4308
+  :branch: master
+input:
+  :commit: 2d6e4a0da9ef5e907a7c6271003f1d440712211f
+  :branch: master
+numerics:
+  :commit: f4227323b5035c89e41490f5cc8f87797b670fad
+  :branch: master
+geometry:
+  :commit: 268e4f6f7ca5d72676cad662e64bf78bab1082c7
+  :branch: master
+parallel:
+  :commit: 70fd29c05588bc153a79af2cc0fa92606a1f973f
   :branch: master

@@ -20,17 +20,17 @@ The build tool [teapot] needs to be installed (which requires [Ruby]):
 
 Fetch all the necessary project dependencies:
 
-	$ cd vizor-platform-xcb
+	$ cd display-xcb
 	$ teapot fetch
 
 ### Tests
 
 Run the tests to confirm basic functionality:
 
-	$ cd vizor-platform-xcb
+	$ cd display-xcb
 You can run the tool by executing the following:
 
-	$ teapot Test/Vizor/Platform/XCB
+	$ teapot Test/Display/XCB
 
 ## Usage
 
