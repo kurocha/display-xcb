@@ -12,37 +12,36 @@
 
 #include <xcb/xcb.h>
 
+#include "Application.hpp"
+
 namespace Display
 {
 	namespace XCB
 	{
-		class Window /* : public Display::Window */
+		class Window : public Display::Window
 		{
 		public:
-			Window();
+			Window::Window(const Application & application, Layout & layout = Layout()): _layout(layout), _application(application);
 			virtual ~Window();
+
+			void set_title(const std::string & title);
+			void set_cursor(Cursor cursor);
+			Scale scale() const;
 			
-			auto connection() const noexcept { return _connection; }
-			auto screen() const noexcept { return _screen; }
 			auto handle() const noexcept { return _handle; }
 			
-			// vk::UniqueSurfaceKHR create_surface(const vk::Instance & instance) const;
-			
-			void show_window() {
+			void show() {
 				xcb_map_window(_connection, _handle);
 				xcb_flush(_connection);
 			}
 			
-			void hide_window() {
+			void hide() {
 				xcb_unmap_window(_connection, _handle);
 			}
 			
-			void set_title(const std::string title);
-			
-			// void process_events();
-			
 		private:
-			std::uint32_t _width = 800, _height = 600;
+			Layout & _layout = nullptr;
+			Application & _application = nullptr;
 			
 			xcb_connection_t * _connection = nullptr;
 			xcb_screen_t * _screen = nullptr;

@@ -12,17 +12,8 @@ namespace Display
 {
 	namespace XCB
 	{
-		Window::Window()
+		Window::Window(const Application & application, Layout & layout = Layout()): _layout(layout), _application(application)
 		{
-			// Open a connection to the X server:
-			_connection = xcb_connect(nullptr, nullptr);
-			
-			// Get the first screen:
-			auto setup = xcb_get_setup(_connection);
-			auto iterator = xcb_setup_roots_iterator(setup);
-			
-			_screen = iterator.data;
-			
 			setup_window(false);
 		}
 		
@@ -31,22 +22,8 @@ namespace Display
 			if (_handle) {
 				xcb_destroy_window(_connection, _handle);
 			}
-			
-			if (_connection) {
-				xcb_disconnect(_connection);
-			}
 		}
-		
-		// vk::UniqueSurfaceKHR Window::create_surface(const vk::Instance & instance) const
-		// {
-		// 	vk::XcbSurfaceCreateInfoKHR surfaceCreateInfo;
-		// 
-		// 	surfaceCreateInfo.connection = _connection;
-		// 	surfaceCreateInfo.window = _handle;
-		// 
-		// 	return instance.createXcbSurfaceKHRUnique(surfaceCreateInfo, nullptr);
-		// }
-		// 
+	 
 		void Window::set_title(const std::string title)
 		{
 			xcb_change_property(
