@@ -10,6 +10,8 @@
 
 #include <Display/Application.hpp>
 
+#include <xcb/xcb.h>
+
 namespace Display
 {
 	namespace XCB
@@ -19,12 +21,18 @@ namespace Display
 		public:
 			Application();
 			virtual ~Application();
-			
-			virtual void run();
-			virtual void stop();
+
+			void run();
+			void stop();
+
+			auto connection() const noexcept { return _connection; }
+			auto screen() const noexcept { return _screen; }
 			
 		protected:
-			virtual void setup();
+			xcb_connection_t * _connection = nullptr;
+			xcb_screen_t * _screen = nullptr;
+
+			bool _running = true;
 		};
 	}
 }

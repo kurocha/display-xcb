@@ -18,6 +18,9 @@ namespace Display
 		
 		Application::~Application()
 		{
+			if (_connection) {
+				xcb_disconnect(_connection);
+			}
 		}
 		
 		void Application::run()
@@ -25,16 +28,28 @@ namespace Display
 			// Setup connnection state using setup() if required.
 			// Invoke did_finish_launching()
 			// Handle user events for windows. Blocking until user invokes stop().
+
+			// Open a connection to the X server:
+			_connection = xcb_connect(nullptr, nullptr);
+			
+			// Get the first screen:
+			auto setup = xcb_get_setup(_connection);
+			auto iterator = xcb_setup_roots_iterator(setup);
+			_screen = iterator.data;
+
+			did_finish_launching();
+
+			do {
+
+			} while (_running);
 		}
 		
 		void Application::stop()
 		{
-			
-		}
-		
-		void Application::setup()
-		{
-			
+			// Possibly do some XCB related things here.
+			if (will_terminate()) {
+				_running = false;
+			}
 		}
 	}
 }
