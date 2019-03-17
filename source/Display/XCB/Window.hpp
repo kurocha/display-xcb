@@ -28,6 +28,7 @@ namespace Display
 			// void set_cursor(Cursor cursor) override;
 			// Scale scale() const override;
 			
+			auto connection() const noexcept { return _application.connection(); }
 			auto handle() const noexcept { return _handle; }
 			
 			void show() override;
