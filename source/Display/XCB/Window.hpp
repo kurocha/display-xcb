@@ -21,35 +21,31 @@ namespace Display
 		class Window : public Display::Window
 		{
 		public:
-			Window::Window(const Application & application, Layout & layout = Layout()): _layout(layout), _application(application);
+			Window(Application & application, const Layout & layout = Layout());
 			virtual ~Window();
 
-			void set_title(const std::string & title);
-			void set_cursor(Cursor cursor);
-			Scale scale() const;
+			void set_title(const std::string & title) override;
+			// void set_cursor(Cursor cursor) override;
+			// Scale scale() const override;
 			
 			auto handle() const noexcept { return _handle; }
 			
-			void show() {
-				xcb_map_window(_connection, _handle);
-				xcb_flush(_connection);
-			}
+			void show() override;
 			
-			void hide() {
-				xcb_unmap_window(_connection, _handle);
-			}
+			void hide() override;
+			
+			friend class Application;
 			
 		private:
-			Layout & _layout = nullptr;
-			Application & _application = nullptr;
+			Application & _application;
+			xcb_window_t _handle = 0;
 			
-			xcb_connection_t * _connection = nullptr;
-			xcb_screen_t * _screen = nullptr;
-			xcb_window_t _handle = ~0;
+			void handle(xcb_client_message_event_t * event);
+			void handle(xcb_generic_event_t * event);
 			
-			xcb_intern_atom_reply_t * _delete_window_reply;
+			void update_title();
 			
-			void setup_window(bool fullscreen);
+			void setup_window(bool fullscreen = false);
 		};
 	}
 }

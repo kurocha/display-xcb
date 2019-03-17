@@ -16,19 +16,22 @@ namespace Display
 {
 	namespace XCB
 	{
+		using namespace UnitTest::Expectations;
+		
 		UnitTest::Suite WindowTestSuite {
-			"Vizor::Platform::XCB::Window",
+			"Display::XCB::Window",
 			
 			{"it should be able to show a window for a few seconds",
 				[](UnitTest::Examiner & examiner) {
-					Window window;
+					Application application;
+					Window window(application);
 
 					window.set_title("doot!");
-					window.show_window();
+					window.show();
 
-					Time::Interval(3).sleep();
+					application.run();
 
-					window.hide_window();
+					window.hide();
 				}
 			},
 		};

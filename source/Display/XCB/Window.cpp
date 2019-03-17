@@ -8,63 +8,62 @@
 
 #include "Window.hpp"
 
+#include <Input/FocusEvent.hpp>
+
 namespace Display
 {
 	namespace XCB
 	{
-		Window::Window(const Application & application, Layout & layout = Layout()): _layout(layout), _application(application)
+		Window::Window(Application & application, const Layout & layout) : Display::Window(application, layout), _application(application)
 		{
-			setup_window(false);
 		}
 		
 		Window::~Window()
 		{
 			if (_handle) {
-				xcb_destroy_window(_connection, _handle);
+				_application.remove(this);
+				xcb_destroy_window(_application.connection(), _handle);
 			}
 		}
 	 
-		void Window::set_title(const std::string title)
+		void Window::set_title(const std::string & title)
+		{
+			Display::Window::set_title(title);
+			
+			if (_handle) {
+				update_title();
+			}
+		}
+		
+		void Window::update_title()
 		{
 			xcb_change_property(
-				_connection,
+				_application.connection(),
 				XCB_PROP_MODE_REPLACE,
 				_handle,
 				XCB_ATOM_WM_NAME,
 				XCB_ATOM_STRING,
 				8,
-				title.size(),
-				title.data()
+				_title.size(),
+				_title.data()
 			);
 		}
 		
-		// void Window::process_events(const EventHandler & handler)
-		// {
-		// 	xcb_generic_event_t * event;
-		// 
-		// 	while ((event = xcb_poll_for_event(_connection)))
-		// 	{
-		// 		handler(event);
-		// 		free(event);
-		// 	}
-		// }
-		
-		static inline xcb_intern_atom_reply_t* intern_atom_helper(xcb_connection_t * connection, bool only_if_exists, const char *str)
-		{
-			xcb_intern_atom_cookie_t cookie = xcb_intern_atom(connection, only_if_exists, strlen(str), str);
-			return xcb_intern_atom_reply(connection, cookie, NULL);
-		}
-
 		void Window::setup_window(bool fullscreen)
 		{
-			assert(_screen);
+			assert(!_handle);
+			
+			auto connection = _application.connection();
+			auto screen = _application.screen();
+			assert(screen);
 			
 			std::uint32_t value_mask, value_list[32];
 			
-			_handle = xcb_generate_id(_connection);
+			_handle = xcb_generate_id(connection);
+			_application.insert(this);
 			
 			value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-			value_list[0] = _screen->black_pixel;
+			value_list[0] = screen->black_pixel;
 			value_list[1] =
 				XCB_EVENT_MASK_KEY_RELEASE |
 				XCB_EVENT_MASK_KEY_PRESS |
@@ -75,41 +74,75 @@ namespace Display
 				XCB_EVENT_MASK_BUTTON_RELEASE;
 			
 			if (fullscreen) {
-				_width = _screen->width_in_pixels;
-				_height = _screen->height_in_pixels;
+				_layout.bounds.set_size_from_origin({
+					screen->width_in_pixels,
+					screen->height_in_pixels
+				});
 			}
 			
-			xcb_create_window(_connection,
+			auto && size = _layout.bounds.size();
+			
+			xcb_create_window(connection,
 				XCB_COPY_FROM_PARENT,
-				_handle, _screen->root,
-				0, 0, _width, _height, 0,
+				_handle, screen->root,
+				0, 0, size[0], size[1], 0,
 				XCB_WINDOW_CLASS_INPUT_OUTPUT,
-				_screen->root_visual,
+				screen->root_visual,
 				value_mask, value_list);
 				
-			/* Magic code that will send notification when window is destroyed */
-			xcb_intern_atom_reply_t* reply = intern_atom_helper(_connection, true, "WM_PROTOCOLS");
-			_delete_window_reply = intern_atom_helper(_connection, false, "WM_DELETE_WINDOW");
-			
-			xcb_change_property(_connection,
+			xcb_change_property(connection,
 				XCB_PROP_MODE_REPLACE,
-				_handle, reply->atom, 4, 32, 1,
-				&_delete_window_reply->atom);
-			
-			free(reply);
+				_handle, _application.wm_protocols()->atom, XCB_ATOM_ATOM, 32, 1,
+				&_application.wm_delete_window()->atom);
 			
 			if (fullscreen) {
-				xcb_intern_atom_reply_t *atom_wm_state = intern_atom_helper(_connection, false, "_NET_WM_STATE");
-				xcb_intern_atom_reply_t *atom_wm_fullscreen = intern_atom_helper(_connection, false, "_NET_WM_STATE_FULLSCREEN");
+				xcb_intern_atom_reply_t * wm_state = _application.intern_atom_reply("_NET_WM_STATE");
+				xcb_intern_atom_reply_t * wm_fullscreen = _application.intern_atom_reply("_NET_WM_STATE_FULLSCREEN");
 				
-				xcb_change_property(_connection,
+				xcb_change_property(connection,
 						XCB_PROP_MODE_REPLACE,
-						_handle, atom_wm_state->atom,
+						_handle, wm_state->atom,
 						XCB_ATOM_ATOM, 32, 1,
-						&atom_wm_fullscreen->atom);
+						&wm_fullscreen->atom);
 				
-				free(atom_wm_fullscreen);
-				free(atom_wm_state);
+				free(wm_state);
+				free(wm_fullscreen);
+			}
+			
+			update_title();
+		}
+		
+		void Window::show()
+		{
+			if (!_handle) {
+				setup_window(_layout.fullscreen);
+			}
+			
+			xcb_map_window(_application.connection(), _handle);
+			xcb_flush(_application.connection());
+		}
+		
+		void Window::hide()
+		{
+			xcb_unmap_window(_application.connection(), _handle);
+			xcb_flush(_application.connection());
+		}
+		
+		void Window::handle(xcb_client_message_event_t * event)
+		{
+			if (event->data.data32[0] == _application.wm_delete_window()->atom) {
+				Input::FocusEvent event({}, Input::FocusEvent::CLOSED);
+				
+				event.apply(*this);
+			}
+		}
+		
+		void Window::handle(xcb_generic_event_t * event)
+		{
+			switch (event->response_type & ~0x80) {
+			case XCB_CLIENT_MESSAGE:
+				handle(reinterpret_cast<xcb_client_message_event_t*>(event));
+				break;
 			}
 		}
 	}

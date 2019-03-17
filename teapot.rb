@@ -40,7 +40,7 @@ define_target 'display-xcb-test' do |target|
 	
 	target.depends 'Language/C++14'
 	
-	target.provides 'Test/Display/XCB' do |arguments|
+	target.provides 'Test/Display/XCB' do |*arguments|
 		test_root = target.package.path + 'test'
 		
 		run tests: 'Display/XCB', source_files: test_root.glob('Display/XCB/**/*.cpp'), arguments: arguments
