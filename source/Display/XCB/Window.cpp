@@ -20,10 +20,7 @@ namespace Display
 		
 		Window::~Window()
 		{
-			if (_handle) {
-				_application.remove(this);
-				xcb_destroy_window(_application.connection(), _handle);
-			}
+			close();
 		}
 	 
 		void Window::set_title(const std::string & title)
@@ -126,6 +123,16 @@ namespace Display
 		{
 			xcb_unmap_window(_application.connection(), _handle);
 			xcb_flush(_application.connection());
+		}
+		
+		void Window::close()
+		{
+			if (_handle) {
+				_application.remove(this);
+				xcb_destroy_window(_application.connection(), _handle);
+				
+				_handle = 0;
+			}
 		}
 		
 		void Window::handle(xcb_client_message_event_t * event)

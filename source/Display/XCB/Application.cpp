@@ -128,6 +128,10 @@ namespace Display
 				if (iterator != _windows.end()) {
 					iterator->second->handle(event);
 				}
+				
+				if (_windows.empty()) {
+					this->stop();
+				}
 			}
 		}
 		

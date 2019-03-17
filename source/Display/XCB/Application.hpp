@@ -34,7 +34,7 @@ namespace Display
 			
 			void run();
 			void stop();
-
+			
 			auto connection() const noexcept { return _connection; }
 			auto screen() const noexcept { return _screen; }
 			

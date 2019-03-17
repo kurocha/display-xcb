@@ -31,8 +31,9 @@ namespace Display
 			auto handle() const noexcept { return _handle; }
 			
 			void show() override;
-			
 			void hide() override;
+			
+			void close() override;
 			
 			friend class Application;
 			
