@@ -9,6 +9,7 @@
 #include "Window.hpp"
 
 #include <Input/FocusEvent.hpp>
+#include <Input/ResizeEvent.hpp>
 
 namespace Display
 {
@@ -135,7 +136,7 @@ namespace Display
 			}
 		}
 		
-		void Window::handle(xcb_client_message_event_t * event)
+		void Window::receive(xcb_client_message_event_t * event)
 		{
 			if (event->data.data32[0] == _application.wm_delete_window()->atom) {
 				Input::FocusEvent event({}, Input::FocusEvent::CLOSED);
@@ -144,11 +145,18 @@ namespace Display
 			}
 		}
 		
-		void Window::handle(xcb_generic_event_t * event)
+		void Window::receive(xcb_configure_notify_event_t * event)
+		{
+			Input::ResizeEvent resize_event({}, {event->width, event->height});
+			
+			this->process(resize_event);
+		}
+		
+		void Window::receive(xcb_generic_event_t * event)
 		{
 			switch (event->response_type & ~0x80) {
 			case XCB_CLIENT_MESSAGE:
-				handle(reinterpret_cast<xcb_client_message_event_t*>(event));
+				receive(reinterpret_cast<xcb_client_message_event_t*>(event));
 				break;
 			}
 		}

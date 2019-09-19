@@ -104,7 +104,7 @@ namespace Display
 				xcb_generic_event_t * event = xcb_wait_for_event(_connection);
 				
 				if (event) {
-					handle(event);
+					receive(event);
 					free(event);
 				} else {
 					break;
@@ -120,13 +120,13 @@ namespace Display
 			}
 		}
 		
-		void Application::handle(xcb_client_message_event_t * event)
+		void Application::receive(xcb_client_message_event_t * event)
 		{
 			if (event->window) {
 				auto iterator = _windows.find(event->window);
 				
 				if (iterator != _windows.end()) {
-					iterator->second->handle(event);
+					iterator->second->receive(event);
 				}
 				
 				if (_windows.empty()) {
@@ -135,11 +135,26 @@ namespace Display
 			}
 		}
 		
-		void Application::handle(xcb_generic_event_t * event)
+		void Application::receive(xcb_configure_notify_event_t * event)
+		{
+			if (event->window) {
+				auto iterator = _windows.find(event->window);
+				
+				if (iterator != _windows.end()) {
+					iterator->second->receive(event);
+				}
+			}
+		}
+		
+		void Application::receive(xcb_generic_event_t * event)
 		{
 			switch (event->response_type & ~0x80) {
 			case XCB_CLIENT_MESSAGE:
-				handle(reinterpret_cast<xcb_client_message_event_t*>(event));
+				receive(reinterpret_cast<xcb_client_message_event_t*>(event));
+				break;
+			
+			case XCB_CONFIGURE_NOTIFY:
+				receive(reinterpret_cast<xcb_configure_notify_event_t*>(event));
 				break;
 			}
 		}

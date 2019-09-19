@@ -47,15 +47,16 @@ namespace Display
 			xcb_intern_atom_reply_t * _wm_protocols = nullptr;
 			xcb_intern_atom_reply_t * _wm_delete_window = nullptr;
 			
-			void handle(xcb_generic_event_t * event);
-			void handle(xcb_client_message_event_t * event);
-			// void handle(xcb_expose_event_t * event);
-			// void handle(xcb_button_press_event_t * event);
-			// void handle(xcb_motion_notify_event_t * event);
-			// void handle(xcb_enter_notify_event_t * event);
-			// void handle(xcb_leave_notify_event_t * event);
-			// void handle(xcb_key_press_event_t * event);
-			// void handle(xcb_key_release_event_t * event);
+			void receive(xcb_generic_event_t * event);
+			void receive(xcb_client_message_event_t * event);
+			void receive(xcb_configure_notify_event_t * event);
+			// void receive(xcb_expose_event_t * event);
+			// void receive(xcb_button_press_event_t * event);
+			// void receive(xcb_motion_notify_event_t * event);
+			// void receive(xcb_enter_notify_event_t * event);
+			// void receive(xcb_leave_notify_event_t * event);
+			// void receive(xcb_key_press_event_t * event);
+			// void receive(xcb_key_release_event_t * event);
 			
 			bool _running = false;
 		};

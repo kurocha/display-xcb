@@ -42,8 +42,9 @@ namespace Display
 			Application & _application;
 			xcb_window_t _handle = 0;
 			
-			void handle(xcb_client_message_event_t * event);
-			void handle(xcb_generic_event_t * event);
+			void receive(xcb_generic_event_t * event);
+			void receive(xcb_client_message_event_t * event);
+			void receive(xcb_configure_notify_event_t * event);
 			
 			void update_title();
 			
