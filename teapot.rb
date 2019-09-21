@@ -10,7 +10,7 @@ end
 
 define_target 'display-xcb-platform' do |target|
 	target.provides 'Display/XCB/Platform' do
-		append linkflags %W{-lxcb}
+		append linkflags %W{-lxcb -lxcb-xinput}
 	end
 end
 

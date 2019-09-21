@@ -6,10 +6,17 @@
 //  Copyright, 2019, by Samuel Williams. All rights reserved.
 //
 
+
 #include "Window.hpp"
 
+#include <Input/Key.hpp>
 #include <Input/FocusEvent.hpp>
 #include <Input/ResizeEvent.hpp>
+#include <Input/MotionEvent.hpp>
+
+#include <Logger/Console.hpp>
+
+#include <system_error>
 
 namespace Display
 {
@@ -107,7 +114,27 @@ namespace Display
 				free(wm_fullscreen);
 			}
 			
+			if (_application.xcb_input_available())
+				setup_xcb_input();
+			
 			update_title();
+		}
+		
+		void Window::setup_xcb_input()
+		{
+			InputEventMask input_event_mask;
+			
+			input_event_mask.header.deviceid = XCB_INPUT_DEVICE_ALL_MASTER;
+			input_event_mask.header.mask_len = 1;
+			input_event_mask.value = XCB_INPUT_XI_EVENT_MASK_MOTION;
+			
+			auto cookie = xcb_input_xi_select_events_checked(connection(), _handle, 1, &input_event_mask.header);
+			
+			auto *error = xcb_request_check(connection(), cookie);
+			
+			if (error) {
+				throw std::runtime_error("error could not setup xinput");
+			}
 		}
 		
 		void Window::show()
@@ -139,9 +166,9 @@ namespace Display
 		void Window::receive(xcb_client_message_event_t * event)
 		{
 			if (event->data.data32[0] == _application.wm_delete_window()->atom) {
-				Input::FocusEvent event({}, Input::FocusEvent::CLOSED);
+				Input::FocusEvent focus_event({}, Input::FocusEvent::CLOSED);
 				
-				event.apply(*this);
+				focus_event.apply(*this);
 			}
 		}
 		
@@ -149,7 +176,34 @@ namespace Display
 		{
 			Input::ResizeEvent resize_event({}, {event->width, event->height});
 			
-			this->process(resize_event);
+			_layout.bounds.set_origin_and_size(
+				{event->x, event->y},
+				{event->width, event->height}
+			);
+			
+			resize_event.apply(*this);
+		}
+		
+		void Window::receive(xcb_motion_notify_event_t * event)
+		{
+			auto time = Time::Interval::from_milliseconds(event->time);
+			const auto & bounds = _layout.bounds;
+			auto key = Input::Key(Input::DefaultMouse, event->state);
+			
+			Input::MotionEvent motion_event(time, key, Input::State::Released, {event->event_x, event->event_y}, {0}, bounds);
+			
+			motion_event.apply(*this);
+		}
+		
+		void Window::receive(xcb_input_motion_event_t * event)
+		{
+			auto time = Time::Interval::from_milliseconds(event->time);
+			const auto & bounds = _layout.bounds;
+			auto key = Input::Key(Input::DefaultMouse, 0);
+			
+			Input::MotionEvent motion_event(time, key, Input::State::Released, {event->event_x / 65536.0, event->event_y / 65536.0}, {0}, bounds);
+			
+			motion_event.apply(*this);
 		}
 		
 		void Window::receive(xcb_generic_event_t * event)

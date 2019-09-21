@@ -11,7 +11,9 @@
 #include <Display/Application.hpp>
 
 #include <unordered_map>
+
 #include <xcb/xcb.h>
+#include <xcb/xinput.h>
 
 namespace Display
 {
@@ -38,6 +40,8 @@ namespace Display
 			auto connection() const noexcept { return _connection; }
 			auto screen() const noexcept { return _screen; }
 			
+			bool xcb_input_available() const noexcept;
+			
 		protected:
 			xcb_connection_t * _connection = nullptr;
 			xcb_screen_t * _screen = nullptr;
@@ -47,16 +51,24 @@ namespace Display
 			xcb_intern_atom_reply_t * _wm_protocols = nullptr;
 			xcb_intern_atom_reply_t * _wm_delete_window = nullptr;
 			
+			// xcb_extension_t _xcb_input_id = {"XInputExtension", 0};
+			const struct xcb_query_extension_reply_t * _xcb_input_reply = nullptr;
+			
+			void setup_extensions();
+			
 			void receive(xcb_generic_event_t * event);
+			void receive(xcb_ge_generic_event_t * event);
 			void receive(xcb_client_message_event_t * event);
 			void receive(xcb_configure_notify_event_t * event);
+			void receive(xcb_motion_notify_event_t * event);
 			// void receive(xcb_expose_event_t * event);
 			// void receive(xcb_button_press_event_t * event);
-			// void receive(xcb_motion_notify_event_t * event);
 			// void receive(xcb_enter_notify_event_t * event);
 			// void receive(xcb_leave_notify_event_t * event);
 			// void receive(xcb_key_press_event_t * event);
 			// void receive(xcb_key_release_event_t * event);
+			
+			void receive(xcb_input_motion_event_t * event);
 			
 			bool _running = false;
 		};

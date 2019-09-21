@@ -12,7 +12,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include <iostream>
+#include <Logger/Console.hpp>
 
 namespace Display
 {
@@ -30,6 +30,8 @@ namespace Display
 
 			_screen = iterator.data;
 			assert(_screen);
+			
+			setup_extensions();
 		}
 		
 		Application::~Application()
@@ -90,6 +92,21 @@ namespace Display
 			return _wm_delete_window;
 		}
 		
+		void Application::setup_extensions()
+		{
+			xcb_prefetch_extension_data(_connection, &xcb_input_id);
+			_xcb_input_reply = xcb_get_extension_data(_connection, &xcb_input_id);
+			
+			if (!_xcb_input_reply->present) {
+				Logger::Console::warn("Could not load extension: xcb_input");
+			}
+		}
+		
+		bool Application::xcb_input_available() const noexcept
+		{
+			return _xcb_input_reply && _xcb_input_reply->present;
+		}
+		
 		void Application::run()
 		{
 			// Setup connnection state using setup() if required.
@@ -146,6 +163,39 @@ namespace Display
 			}
 		}
 		
+		void Application::receive(xcb_motion_notify_event_t * event)
+		{
+			if (event->event) {
+				auto iterator = _windows.find(event->event);
+				
+				if (iterator != _windows.end()) {
+					iterator->second->receive(event);
+				}
+			}
+		}
+		
+		void Application::receive(xcb_input_motion_event_t * event)
+		{
+			if (event->event) {
+				auto iterator = _windows.find(event->event);
+				
+				if (iterator != _windows.end()) {
+					iterator->second->receive(event);
+				}
+			}
+		}
+		
+		void Application::receive(xcb_ge_generic_event_t * event)
+		{
+			if (event->extension == _xcb_input_reply->major_opcode) {
+				switch (event->event_type) {
+					case XCB_INPUT_MOTION:
+						receive(reinterpret_cast<xcb_input_motion_event_t*>(event));
+						break;
+				}
+			}
+		}
+		
 		void Application::receive(xcb_generic_event_t * event)
 		{
 			switch (event->response_type & ~0x80) {
@@ -156,6 +206,19 @@ namespace Display
 			case XCB_CONFIGURE_NOTIFY:
 				receive(reinterpret_cast<xcb_configure_notify_event_t*>(event));
 				break;
+			
+			case XCB_MOTION_NOTIFY:
+				receive(reinterpret_cast<xcb_motion_notify_event_t*>(event));
+				break;
+			
+			case XCB_GE_GENERIC:
+				receive(reinterpret_cast<xcb_ge_generic_event_t*>(event));
+				break;
+			
+			default:
+				Logger::Console::warn(
+					"Unhandled event:", static_cast<int>(event->response_type)
+				);
 			}
 		}
 	}

@@ -10,14 +10,19 @@
 
 #include <Display/Window.hpp>
 
-#include <xcb/xcb.h>
-
 #include "Application.hpp"
+
+#include <xcb/xinput.h>
 
 namespace Display
 {
 	namespace XCB
 	{
+		struct InputEventMask {
+			xcb_input_event_mask_t header;
+			uint32_t value;
+		};
+		
 		class Window : public Display::Window
 		{
 		public:
@@ -45,10 +50,14 @@ namespace Display
 			void receive(xcb_generic_event_t * event);
 			void receive(xcb_client_message_event_t * event);
 			void receive(xcb_configure_notify_event_t * event);
+			void receive(xcb_motion_notify_event_t * event);
+			
+			void receive(xcb_input_motion_event_t * event);
 			
 			void update_title();
 			
 			void setup_window(bool fullscreen = false);
+			void setup_xcb_input();
 		};
 	}
 }
