@@ -37,9 +37,10 @@ namespace Display
 			void run();
 			void stop();
 			
-			auto connection() const noexcept { return _connection; }
-			auto screen() const noexcept { return _screen; }
+			auto connection() const noexcept {return _connection;}
+			auto screen() const noexcept {return _screen;}
 			
+			// Whether xcb input is available (sub-pixel precise motion).
 			bool xcb_input_available() const noexcept;
 			
 		protected:
